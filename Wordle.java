@@ -1,34 +1,46 @@
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
-public class Wordle{
+public class Wordle {
     static String GREEN = "\u001B[32m";
     static String YELLOW = "\u001B[33m";
     static String RESET = "\u001B[0m";
+
 public static void main(String[] args){
-    WordList words = new WordList();
-    String Words[] = words.Words;
-    Random generator = new Random();
-    int randomIndex = generator.nextInt(Words.length);
-    String The_Word = Words[randomIndex];
     int Guesses = 5;
     String CurrentGuess = "";
     System.out.println("Guess the 5 letter word in 5 tries!" + GREEN + " GREEN = Correctly Placed," + YELLOW + " YELLOW = Incorrect Placed" + RESET);
     Scanner Guess = new Scanner(System.in);
-
+    String[] Mega_Word_List = Wordle.theword_list("words.txt");
+    String[] The_Word_List = Wordle.theword_list("words2.txt");
+    int wordIndex = (int)(Math.random()*The_Word_List.length);
+    String The_Word = The_Word_List[wordIndex].toUpperCase();
+    ArrayList<String> Color_Words = new ArrayList<String>();
     for(int x = 0; x < Guesses; x++) {
+        boolean Valid = false;
         if (The_Word.equals(CurrentGuess.toUpperCase())) {
             System.out.println("Congratulations! You correctly guessed the word: " + CurrentGuess);
             break;
         }
         else if (x < Guesses){
-            System.out.print("Guess Number " + (x+1) + " :");
+            while (Valid == false) {
+            System.out.print("Guess " + (x+1) + " :");
             String Ans = Guess.nextLine();
             CurrentGuess = Ans;
+            if (Arrays.asList(Mega_Word_List).contains(CurrentGuess.toUpperCase()) && CurrentGuess.length() == 5) {
+                Valid = true;
+            }
+            else {System.out.println("Invalid Word! Try again.");}
+            }
+            
             String CurrentColors = Checker(The_Word, CurrentGuess);
-            System.out.println(CurrentColors);
-            if (x == Guesses - 1) {System.out.println("You ran out of attempts! The word was '" + The_Word + "'");}
+            Color_Words.add(CurrentColors);
+            Hints(Color_Words);
+            if (x == Guesses - 1 && !The_Word.equals(CurrentGuess.toUpperCase())) {System.out.println("You ran out of attempts! The word was '" + The_Word + "'");}
+            else if (x == Guesses - 1 && The_Word.equals(CurrentGuess.toUpperCase())) {System.out.println("Congratulations! You correctly guessed the word: " + CurrentGuess);}
         }
 
     }
@@ -65,7 +77,7 @@ static String Checker(String word, String the_guess){
         char letter = NewColors.charAt(j);
         int value = var_word.indexOf(letter);
         if (value != -1) {
-            var_word = var_word.substring(0, value) + '0' + var_word.substring(value + 1);}
+            var_word = var_word.substring(0, value) + '1' + var_word.substring(value + 1);}
         NewAllWordLetterPosition.add(value);
     }
 
@@ -81,6 +93,24 @@ static String Checker(String word, String the_guess){
     return MainColor;
 }   
 
+public static String[] theword_list(String filename){
+    try {
+        String[] words = new String(Files.readAllBytes(Paths.get(filename))).split(" ");
+        return words; }
+    catch(Exception e){
+        System.out.println("Error 404: File \"words.txt\" not found");
+        return null;
+    }
 
 }
 
+public static void Hints(ArrayList<String> Array_Hints){
+    System.out.print("\033[H\033[2J");  
+    System.out.flush();  
+    for(int j = 0; j < Array_Hints.size(); j++) {
+        System.out.println("Guess " + (j+1) + " " + Array_Hints.get(j));
+    }
+}
+
+
+}
