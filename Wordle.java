@@ -6,114 +6,189 @@ public class Wordle {
     static String GREEN = "\u001B[32m";
     static String YELLOW = "\u001B[33m";
     static String RESET = "\u001B[0m";
+
 public static void main(String[] args){
-    String CurrentGuess = "";
+
+    String currentGuess = "";
     int Guesses = 0;
     boolean continues = false;
+    String Mode = "";
     Scanner Guess = new Scanner(System.in);
-    while(continues == false){
-    System.out.println("Do you want to guess a 4 letter word or a 5 letter word?" + GREEN + " GREEN = Correctly Placed," + YELLOW + " YELLOW = Incorrect Placed" + RESET);
-    Guesses = Guess.nextInt();
-    if (Guesses == 4 || Guesses == 5) {continues = true;}
-    else {System.out.println("Invalid input. The word must either be 4 or 5 letters long!");}
-    }
-    Guess.nextLine();
-    
-    ArrayList<String> Mega_Word_List = Methods.theword_list("words.txt", Guesses);
-    Object[] ArrayML = Mega_Word_List.toArray();
 
-    ArrayList<String> The_Word_List = Methods.theword_list("words2.txt", Guesses);
-    int wordIndex = (int)(Math.random()*The_Word_List.size());
-    String The_Word = The_Word_List.get(wordIndex).toUpperCase();
-    ArrayList<String> Color_Words = new ArrayList<String>();
-    ArrayList<Character> allLetters = new ArrayList<Character>(Arrays.asList('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q','R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'));
-    ArrayList<Character> usedLetters = new ArrayList<Character>();
-    ArrayList<Set<Character>> megaList = new ArrayList<Set<Character>>();
+    while(continues == false){
+    System.out.println("Do you want to guess a 4 letter word or a 5 letter word? And type 'easy' or 'hard' for the game mode!"  + GREEN + " GREEN = Correctly Placed," + YELLOW + " YELLOW = Incorrect Placed" + RESET);
+    Guesses = Guess.nextInt();
+    Mode = Guess.nextLine();
+    if (Guesses == 4 || Guesses == 5 && (Mode.toLowerCase().equals(" easy")|| Mode.toLowerCase().equals(" hard"))) {continues = true;}
+    else {System.out.println("Invalid input. The word must either be 4 or 5 letters long and the game mode must be easy or hard!");}
+    }
+    
+    boolean mode = Mode.toLowerCase().equals(" hard");
+
+    ArrayList<Character> correctPlacedLetters = new ArrayList<>();
+    ArrayList<Integer> correctPlacedIndex = new ArrayList<>();
+
+    
+    ArrayList<String> megaWordList = Methods.theword_list("allWords.txt", Guesses);
+    Object[] ArrayML = megaWordList.toArray();
+
+    ArrayList<String> theWordList = Methods.theword_list("guessWords.txt", Guesses);
+    int wordIndex = (int)(Math.random()*theWordList.size());
+    String theWord = theWordList.get(wordIndex).toUpperCase();
+ 
+
+    ArrayList<String> colorWordsList = new ArrayList<String>();
+    ArrayList<String> normalWordsList = new ArrayList<String>();
+    ArrayList<ArrayList<Integer>> colorWordsIndex = new ArrayList<ArrayList<Integer>>();
+    ArrayList<Character> allLettersList = new ArrayList<Character>(Arrays.asList('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q','R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'));
+    ArrayList<Character> usedLettersList = new ArrayList<Character>();
+    ArrayList<Set<Character>> megaSet = new ArrayList<Set<Character>>();
+
     for(int x = 0; x < Guesses; x++) {
         boolean Valid = false;
-        if (The_Word.equals(CurrentGuess.toUpperCase())) {
-            System.out.println("Congratulations! You correctly guessed the word: " + CurrentGuess);
+
+        if (theWord.equals(currentGuess.toUpperCase())) {
+            System.out.println("Congratulations! You correctly guessed the word: " + currentGuess);
             break;
         }
         else if (x < Guesses){
+            boolean cont = true;
+            boolean length = false;
             while (Valid == false) {
+            do {
             System.out.print("Guess " + (x+1) + ":");
             String Ans = Guess.nextLine();
-            CurrentGuess = Ans;
-            if (Arrays.asList(ArrayML).contains(CurrentGuess.toUpperCase()) && CurrentGuess.length() == Guesses) {
+            currentGuess = Ans.toUpperCase();
+            length = Methods.lengthCheck(currentGuess, Guesses);
+            if (length == false) {System.out.println("Invalid word length! Try again.");}
+        } while (length == false);
+
+            String color = Methods.Checker(theWord, currentGuess, colorWordsIndex);
+
+            if(x > 0 && mode == true)
+             {cont = Methods.validGuess(currentGuess, normalWordsList, colorWordsIndex, correctPlacedLetters, correctPlacedIndex);}
+
+            if (Arrays.asList(ArrayML).contains(currentGuess) && cont == true) {
+                if (x == 0) {normalWordsList.add(currentGuess);}
+                colorWordsList.add(color);
                 Valid = true;
-                CurrentGuess = CurrentGuess.toUpperCase();
-                for(int j = 0; j < CurrentGuess.length(); j++) {usedLetters.add(CurrentGuess.charAt(j));}
+                currentGuess = currentGuess.toUpperCase();
+                for(int j = 0; j < currentGuess.length(); j++) {usedLettersList.add(currentGuess.charAt(j));}
             }
             else {System.out.println("Invalid Word! Try again.");}
             }
-            Set<Character> AllSetLetters = new HashSet<>(allLetters);
-            AllSetLetters.removeAll(usedLetters);
-            megaList.add(AllSetLetters);
-            String CurrentColors = Methods.Checker(The_Word, CurrentGuess);
-            Color_Words.add(CurrentColors);
-            Methods.Display(Color_Words, megaList);
-            if (x == Guesses - 1 && !The_Word.equals(CurrentGuess.toUpperCase())) {System.out.println("You ran out of attempts! The word was '" + The_Word + "'");}
-            else if (x == Guesses - 1 && The_Word.equals(CurrentGuess.toUpperCase())) {System.out.println("Congratulations! You correctly guessed the word: " + CurrentGuess);}
-        }
 
+            Set<Character> allSetLetters = new HashSet<>(allLettersList);
+            allSetLetters.removeAll(usedLettersList);
+            megaSet.add(allSetLetters);
+
+            Methods.Display(colorWordsList, megaSet);
+
+            if (x == Guesses - 1 && !theWord.equals(currentGuess.toUpperCase())) {System.out.println("You ran out of attempts! The word was '" + theWord + "'");}
+            else if (x == Guesses - 1 && theWord.equals(currentGuess.toUpperCase())) {System.out.println("Congratulations! You correctly guessed the word: " + currentGuess);}
+        }
     }
     Guess.close();
+
 }
 }
 
-class Methods{
-    static String GREEN = "\u001B[32m";
-    static String YELLOW = "\u001B[33m";
-    static String RESET = "\u001B[0m";
+class Methods extends Wordle{
 
-    static String Checker(String word, String the_guess){
-    the_guess = the_guess.toUpperCase();
-    String var_word = "";
-    ArrayList<Integer> AllWordLetterPosition = new ArrayList<Integer>();
-    ArrayList<Integer> NewAllWordLetterPosition = new ArrayList<Integer>();
-    for(int j = 0; j < the_guess.length(); j++) {
-        char letter = the_guess.charAt(j);
+public static boolean lengthCheck(String currentGuess, int GuessLength){
+    boolean valid = false;
+    if(currentGuess.length() == GuessLength) {valid = true;}
+    return valid;
+}
+
+static String Checker(String word, String theGuess, ArrayList<ArrayList<Integer>> colorIndexes){
+    theGuess = theGuess.toUpperCase();
+    String varWord = "";
+    ArrayList<Integer> allWordLetterPosition = new ArrayList<Integer>();
+    ArrayList<Integer> newAllWordLetterPosition = new ArrayList<Integer>();
+    String newColors = "";
+    String mainColor = "";
+    // Creates an ArrayList matching the index of each letter of the current guess to the actual word
+    for(int j = 0; j < theGuess.length(); j++) {
+        char letter = theGuess.charAt(j);
         int value = word.substring(j).indexOf(letter);
         if (value != -1) {value += j;}
-        AllWordLetterPosition.add(value);
+        allWordLetterPosition.add(value);
     }
-    String NewColors = "";
-    String MainColor = "";
-    for(int j = 0; j < AllWordLetterPosition.size(); j++) {
-        if (AllWordLetterPosition.get(j) == j) {
-            NewColors += '1';
-            var_word += '1';
+    // Creates new words of the original word and the guess with matching letters replaced with '1' 
+    for(int j = 0; j < theGuess.length(); j++) {
+        if (allWordLetterPosition.get(j) == j) {
+            newColors += '1';
+            varWord += '1';
         }
-        else {NewColors += the_guess.charAt(j);
-              var_word += word.charAt(j);  }
+        else {newColors += theGuess.charAt(j);
+              varWord += word.charAt(j);  }
     }
-    /* 
-    for(int j = 0; j < AllWordLetterPosition.size(); j++) {
-        if (NewColors.charAt(j) == '1') {var_word += '1';}
-        else {var_word += word.charAt(j);}
-    }
-    */
-    for(int j = 0; j < the_guess.length(); j++) {
-        char letter = NewColors.charAt(j);
-        int value = var_word.indexOf(letter);
+    // Creates a new ArrayList matching the index of each letter of newColors with the original word
+    for(int j = 0; j < theGuess.length(); j++) {
+        char letter = newColors.charAt(j);
+        int value = varWord.indexOf(letter);
+        if('1' != varWord.charAt(j) && value != -1) {newAllWordLetterPosition.add(-2);}
+        else {newAllWordLetterPosition.add(value);}
         if (value != -1) {
-            var_word = var_word.substring(0, value) + '1' + var_word.substring(value + 1);}
-        NewAllWordLetterPosition.add(value);
+            varWord = varWord.substring(0, value) + '0' + varWord.substring(value + 1);
+            }
+        
     }
-
-    for(int j = 0; j < the_guess.length(); j++) {
-        if (NewColors.charAt(j) == '1') {
-            MainColor += GREEN + the_guess.charAt(j) + RESET;
+    colorIndexes.add(newAllWordLetterPosition);
+    // Assigns colors to each letter of the guess based on the previous variables
+    for(int j = 0; j < theGuess.length(); j++) {
+        if (newColors.charAt(j) == '1') {
+            mainColor += GREEN + theGuess.charAt(j) + RESET;
         }
-        else if (NewAllWordLetterPosition.get(j) == -1) {    
-            MainColor += the_guess.charAt(j);
+        else if (newAllWordLetterPosition.get(j) == -1) {    
+            mainColor += theGuess.charAt(j);
         }
-        else {MainColor += YELLOW + the_guess.charAt(j) + RESET;}
+        else {mainColor += YELLOW + theGuess.charAt(j) + RESET;}
     }
-    return MainColor;
-}   
+    return mainColor;
+}
 
+public static boolean validGuess(String currentGuess, ArrayList<String> normalWordsList, 
+                                ArrayList<ArrayList<Integer>> colorWordsIndex, ArrayList<Character> correctPlacedLetters, ArrayList<Integer> correctPlacedIndex){
+    
+    boolean contain = false;
+    normalWordsList.add(currentGuess);
+    for(int k = 0; k < normalWordsList.get(0).length(); k++) {
+        if(colorWordsIndex.size() == 0) {break;}
+        boolean correctPlaced = false;
+        for(int j = 0; j < colorWordsIndex.size(); j++){
+
+            if(colorWordsIndex.get(j).get(k) == -1) {continue;}
+
+            else if(colorWordsIndex.get(j).get(k) >= 0 && correctPlaced == false) {
+                correctPlacedIndex.add(colorWordsIndex.get(j).get(k));
+                correctPlacedLetters.add(normalWordsList.get(j).charAt(k));
+                correctPlaced = true;
+                    }
+                }
+            }
+    for (int n = 0; n < normalWordsList.get(0).length(); n++) {
+        if (correctPlacedIndex.contains(n) == true) {
+            int indexOfNumber = correctPlacedIndex.indexOf(n);
+            if (currentGuess.charAt(n) != correctPlacedLetters.get(indexOfNumber)) {
+                contain = false;
+                        break;
+                    }
+                }
+                contain = true;
+            }
+    
+    correctPlacedIndex.clear();
+    correctPlacedLetters.clear();
+    if (contain == false) {
+        normalWordsList.remove(normalWordsList.size() - 1);
+        colorWordsIndex.remove(colorWordsIndex.size() - 1);}
+    return contain;
+}
+
+
+// Returns all words of the same length as the inputted word length from a text file of words.
 public static ArrayList<String> theword_list(String filename, int wordLength){
     try {
         String[] words = new String(Files.readAllBytes(Paths.get(filename))).split(" ");
@@ -122,21 +197,23 @@ public static ArrayList<String> theword_list(String filename, int wordLength){
             if (words[j].length() == wordLength) {actualWords.add(words[j]);}
             else {continue;}
         }
-        return actualWords;}
+        return actualWords;
+    }
     catch(Exception e){
         System.out.println("Error 404: File \"words.txt\" not found");
         return null;
     }
-
 }
 
-public static void Display(ArrayList<String> Array_Hints, ArrayList<Set<Character>> AllArray){
+
+
+// Displays the word with hints using colors, and also shows the unused letters in an ArrayList
+public static void Display(ArrayList<String> arrayHints, ArrayList<Set<Character>> allArray){
     System.out.print("\033[H\033[2J");  
     System.out.flush();  
-
-    for(int j = 0; j < Array_Hints.size(); j++) {
-        System.out.print("Guess " + (j+1) + " " + Array_Hints.get(j));
-        System.out.println(" Unused Letters: "+ AllArray.get(j));
+    for(int j = 0; j < arrayHints.size(); j++) {
+        System.out.print("Guess " + (j+1) + " " + arrayHints.get(j));
+        System.out.println(" Unused Letters: "+ allArray.get(j));
     }
 }
 
