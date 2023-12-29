@@ -6,7 +6,7 @@ public class Wordle {
     static String GREEN = "\u001B[32m";
     static String YELLOW = "\u001B[33m";
     static String RESET = "\u001B[0m";
-
+// laid soul meth thor
 public static void main(String[] args){
 
     String currentGuess = "";
@@ -14,7 +14,6 @@ public static void main(String[] args){
     boolean continues = false;
     String Mode = "";
     Scanner Guess = new Scanner(System.in);
-
     while(continues == false){
     System.out.println("Do you want to guess a 4 letter word or a 5 letter word? And type 'easy' or 'hard' for the game mode!"  + GREEN + " GREEN = Correctly Placed," + YELLOW + " YELLOW = Incorrect Placed" + RESET);
     Guesses = Guess.nextInt();
@@ -34,8 +33,7 @@ public static void main(String[] args){
 
     ArrayList<String> theWordList = Methods.theword_list("guessWords.txt", Guesses);
     int wordIndex = (int)(Math.random()*theWordList.size());
-    String theWord = theWordList.get(wordIndex).toUpperCase();
- 
+    String theWord = theWordList.get(wordIndex).toUpperCase();;
 
     ArrayList<String> colorWordsList = new ArrayList<String>();
     ArrayList<String> normalWordsList = new ArrayList<String>();
@@ -54,22 +52,23 @@ public static void main(String[] args){
         else if (x < Guesses){
             boolean cont = true;
             boolean length = false;
+            
             while (Valid == false) {
             do {
             System.out.print("Guess " + (x+1) + ":");
             String Ans = Guess.nextLine();
             currentGuess = Ans.toUpperCase();
+            boolean inList = Arrays.asList(ArrayML).contains(currentGuess);
             length = Methods.lengthCheck(currentGuess, Guesses);
-            if (length == false) {System.out.println("Invalid word length! Try again.");}
+            if (inList == false) {length = false;}
+            if (length == false) {System.out.println("Invalid word length or word not in dictionary! Try again.");}
         } while (length == false);
 
             String color = Methods.Checker(theWord, currentGuess, colorWordsIndex);
-
+            normalWordsList.add(currentGuess);
             if(x > 0 && mode == true)
              {cont = Methods.validGuess(currentGuess, normalWordsList, colorWordsIndex, correctPlacedLetters, correctPlacedIndex);}
-
-            if (Arrays.asList(ArrayML).contains(currentGuess) && cont == true) {
-                if (x == 0) {normalWordsList.add(currentGuess);}
+            if (cont == true) {
                 colorWordsList.add(color);
                 Valid = true;
                 currentGuess = currentGuess.toUpperCase();
@@ -153,7 +152,6 @@ public static boolean validGuess(String currentGuess, ArrayList<String> normalWo
                                 ArrayList<ArrayList<Integer>> colorWordsIndex, ArrayList<Character> correctPlacedLetters, ArrayList<Integer> correctPlacedIndex){
     
     boolean contain = false;
-    normalWordsList.add(currentGuess);
     for(int k = 0; k < normalWordsList.get(0).length(); k++) {
         if(colorWordsIndex.size() == 0) {break;}
         boolean correctPlaced = false;
@@ -168,6 +166,7 @@ public static boolean validGuess(String currentGuess, ArrayList<String> normalWo
                     }
                 }
             }
+
     for (int n = 0; n < normalWordsList.get(0).length(); n++) {
         if (correctPlacedIndex.contains(n) == true) {
             int indexOfNumber = correctPlacedIndex.indexOf(n);
@@ -176,6 +175,7 @@ public static boolean validGuess(String currentGuess, ArrayList<String> normalWo
                         break;
                     }
                 }
+               
                 contain = true;
             }
     
