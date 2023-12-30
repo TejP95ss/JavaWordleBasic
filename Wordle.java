@@ -1,19 +1,21 @@
 import java.util.*;
 
 public class Wordle {
+    // All colors used in the game
     static String GREEN = "\u001B[32m";
     static String YELLOW = "\u001B[33m";
     static String RESET = "\u001B[0m";
-// laid soul meth thor
+    static String RED = "\u001B[31m"; 
 public static void main(String[] args){
 
-    String currentGuess = "";
+    String currentGuess, Mode;
+    currentGuess = Mode = "";
     int Guesses = 0;
     boolean continues = false;
-    String Mode = "";
     Scanner Guess = new Scanner(System.in);
     while(continues == false){
-    System.out.println("Do you want to guess a 4 letter word or a 5 letter word? And type 'easy' or 'hard' for the game mode!"  + GREEN + " GREEN = Correctly Placed," + YELLOW + " YELLOW = Incorrect Placed" + RESET);
+    System.out.println("Do you want to guess a 4 letter word or a 5 letter word? And type 'easy' or 'hard' for the game mode!");
+    System.out.println(GREEN + "GREEN = Correctly Placed," + YELLOW + " YELLOW = Incorrect Placed" + RED + " RED = Letter not in word" + RESET);
     Guesses = Guess.nextInt();
     Mode = Guess.nextLine();
     if (Guesses == 4 || Guesses == 5 && (Mode.toLowerCase().equals(" easy")|| Mode.toLowerCase().equals(" hard"))) {continues = true;}
@@ -36,6 +38,7 @@ public static void main(String[] args){
     ArrayList<String> colorWordsList = new ArrayList<String>();
     ArrayList<String> normalWordsList = new ArrayList<String>();
     ArrayList<ArrayList<Integer>> colorWordsIndex = new ArrayList<ArrayList<Integer>>();
+    
     ArrayList<Character> allLettersList = new ArrayList<Character>(Arrays.asList('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q','R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'));
     ArrayList<Character> usedLettersList = new ArrayList<Character>();
     ArrayList<Set<Character>> megaSet = new ArrayList<Set<Character>>();

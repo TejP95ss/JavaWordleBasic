@@ -9,32 +9,32 @@ public class Methods extends Wordle{
         if(currentGuess.length() == GuessLength) {valid = true;}
         return valid;
     }
-    
-    static String Checker(String word, String theGuess, ArrayList<ArrayList<Integer>> colorIndexes){
-        theGuess = theGuess.toUpperCase();
+    // Returns the colored word based on location of the letters in the guess and the actual word
+    static String Checker(String word, String currentGuess, ArrayList<ArrayList<Integer>> colorIndexes){
+        currentGuess = currentGuess.toUpperCase();
         String varWord = "";
         ArrayList<Integer> allWordLetterPosition = new ArrayList<Integer>();
         ArrayList<Integer> newAllWordLetterPosition = new ArrayList<Integer>();
         String newColors = "";
         String mainColor = "";
         // Creates an ArrayList matching the index of each letter of the current guess to the actual word
-        for(int j = 0; j < theGuess.length(); j++) {
-            char letter = theGuess.charAt(j);
+        for(int j = 0; j < currentGuess.length(); j++) {
+            char letter = currentGuess.charAt(j);
             int value = word.substring(j).indexOf(letter);
             if (value != -1) {value += j;}
             allWordLetterPosition.add(value);
         }
         // Creates new words of the original word and the guess with matching letters replaced with '1' 
-        for(int j = 0; j < theGuess.length(); j++) {
+        for(int j = 0; j < currentGuess.length(); j++) {
             if (allWordLetterPosition.get(j) == j) {
                 newColors += '1';
                 varWord += '1';
             }
-            else {newColors += theGuess.charAt(j);
+            else {newColors += currentGuess.charAt(j);
                   varWord += word.charAt(j);  }
         }
         // Creates a new ArrayList matching the index of each letter of newColors with the original word
-        for(int j = 0; j < theGuess.length(); j++) {
+        for(int j = 0; j < currentGuess.length(); j++) {
             char letter = newColors.charAt(j);
             int value = varWord.indexOf(letter);
             if('1' != varWord.charAt(j) && value != -1) {newAllWordLetterPosition.add(-2);}
@@ -46,14 +46,14 @@ public class Methods extends Wordle{
         }
         colorIndexes.add(newAllWordLetterPosition);
         // Assigns colors to each letter of the guess based on the previous variables
-        for(int j = 0; j < theGuess.length(); j++) {
+        for(int j = 0; j < currentGuess.length(); j++) {
             if (newColors.charAt(j) == '1') {
-                mainColor += GREEN + theGuess.charAt(j) + RESET;
+                mainColor += GREEN + currentGuess.charAt(j) + RESET;
             }
             else if (newAllWordLetterPosition.get(j) == -1) {    
-                mainColor += theGuess.charAt(j);
+                mainColor += RED + currentGuess.charAt(j) + RESET;
             }
-            else {mainColor += YELLOW + theGuess.charAt(j) + RESET;}
+            else {mainColor += YELLOW + currentGuess.charAt(j) + RESET;}
         }
         return mainColor;
     }
@@ -126,5 +126,4 @@ public class Methods extends Wordle{
             System.out.println(" Unused Letters: "+ allArray.get(j));
         }
     }
-    
     }
