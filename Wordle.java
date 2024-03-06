@@ -21,8 +21,6 @@ public static void main(String[] args){
     if (Guesses == 4 || Guesses == 5 && (Mode.toLowerCase().equals(" easy")|| Mode.toLowerCase().equals(" hard"))) {continues = true;}
     else {System.out.println("Invalid input. The word must either be 4 or 5 letters long and the game mode must be easy or hard!");}
     }
-    
-    boolean mode = Mode.toLowerCase().equals(" hard");
 
     ArrayList<Character> correctPlacedLetters = new ArrayList<>();
     ArrayList<Integer> correctPlacedIndex = new ArrayList<>();
@@ -55,19 +53,19 @@ public static void main(String[] args){
             boolean length = false;
             
             while (Valid == false) {
+                
             do {
             System.out.print("Guess " + (x+1) + ":");
             String Ans = Guess.nextLine();
             currentGuess = Ans.toUpperCase();
-            boolean inList = Arrays.asList(ArrayML).contains(currentGuess);
             length = Methods.lengthCheck(currentGuess, Guesses);
-            if (inList == false) {length = false;}
+            if (!Arrays.asList(ArrayML).contains(currentGuess)) {length = false;}
             if (length == false) {System.out.println("Invalid word length or word not in dictionary! Try again.");}
         } while (length == false);
 
             String color = Methods.Checker(theWord, currentGuess, colorWordsIndex);
             normalWordsList.add(currentGuess);
-            if(x > 0 && mode == true)
+            if(x > 0 &&  Mode.toLowerCase().equals(" hard"))
              {cont = Methods.validGuess(currentGuess, normalWordsList, colorWordsIndex, correctPlacedLetters, correctPlacedIndex);}
             if (cont == true) {
                 colorWordsList.add(color);
